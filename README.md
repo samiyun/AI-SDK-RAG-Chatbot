@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RAG Chatbot - AI Knowledge Assistant
+
+A Retrieval-Augmented Generation (RAG) application built with Next.js and the Vercel AI SDK. This application allows administrators to ingest PDF documents, converts the text into vector embeddings, and provides a chat interface that answers user questions based on the context of the uploaded data.
+
+## Features
+
+* **Vector Search:** Stores and queries 1536-dimensional embeddings using Neon PostgreSQL with the pgvector extension and HNSW indexing.
+* **Document Ingestion:** Processes uploaded PDFs by extracting text and segmenting it into overlapping chunks using LangChain and the Vercel AI SDK.
+* **Access Control:** Restricts document upload functionality to authorized administrators using Clerk JWT session claims and Next.js edge middleware.
+* **Streaming Responses:** Utilizes the Vercel AI SDK to stream conversational responses back to the user interface.
+
+## Tech Stack
+
+* **Framework:** Next.js (App Router)
+* **Language:** TypeScript
+* **AI Libraries:** Vercel AI SDK, LangChain
+* **Database:** Neon Serverless PostgreSQL
+* **ORM:** Drizzle ORM
+* **Database Extension:** pgvector
+* **Authentication:** Clerk
+* **Styling:** Tailwind CSS, Shadcn UI
+* **Linting/Formatting:** Biome
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+You will need Node.js installed on your machine, along with active accounts for Neon (PostgreSQL), Clerk (Authentication), and OpenAI (LLM and Embeddings).
 
+### 1. Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone [https://github.com/samiyun/AI-SDK-RAG-Chatbot.git](https://github.com/samiyun/AI-SDK-RAG-Chatbot.git)
+cd AI-SDK-RAG-Chatbot
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Set up Environment Variables
+Create a .env.local file in the root directory and add your configuration keys:
+```bash
+(example)
+# Authentication (Clerk)
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Database (Neon PostgreSQL)
+DATABASE_URL=postgresql://user:password@ep-cool-cloud.region.aws.neon.tech/neondb
 
-## Learn More
+# AI Providers
+OPENAI_API_KEY=your_openai_api_key
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 4. Database Setup & Migrations
+```bash
+npx drizzle-kit push
+```
+### 5. Run the Development Server
+Open http://localhost:3000 with your browser to interact with the application.
+```bash
+npm run dev
+```
+### Overview
+1. Upload: An authorized administrator uploads a PDF document. The file is parsed and passed to LangChain splitters to divide the text into overlapping chunks.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Embedding: The text chunks are sent to OpenAI's embedding model to generate vector representations.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. Storage: The vectors and their corresponding text chunks are stored in a Neon PostgreSQL database using the pgvector extension.
 
-## Deploy on Vercel
+4. Retrieval: When a user submits a question, the query is converted into a vector. An HNSW-indexed similarity search retrieves the closest matching document chunks from the database.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+5. Generation: The retrieved text chunks and the user's prompt are sent to the LLM via the Vercel AI SDK to generate a response based on the provided context.
