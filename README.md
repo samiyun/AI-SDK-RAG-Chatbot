@@ -1,5 +1,7 @@
 # RAG Chatbot - AI Knowledge Assistant
 
+(Note: This project will be updated in the future to have an improved and more accessible frontend!)
+
 A Retrieval-Augmented Generation (RAG) application built with Next.js and the Vercel AI SDK. This application allows administrators to ingest PDF documents, converts the text into vector embeddings, and provides a chat interface that answers user questions based on the context of the uploaded data.
 
 ## Features
